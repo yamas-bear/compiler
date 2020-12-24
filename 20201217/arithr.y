@@ -1,4 +1,5 @@
 %{
+//定義部
 #include <stdio.h>
 #include "arithrv.tab.h"
  extern int yylex();//変数宣言
@@ -9,10 +10,13 @@
  double dval;
  int vblno;
  }
+// プログラムで用いるトークンを宣言
 %token <vblno> NAME
 %token <dval> NUMBER
+//非終端記号の型を指定するときに用いる
 %type <dval> expression mulexp primary
 %%
+//規則部
 //何行か分からないときはこのように書く。区切りは改行文字
 statement_list : statement '\n'
 | statement_list statement '\n'
@@ -39,6 +43,7 @@ primary : '(' expression ')' {$$ = $2; }
 ;
 
 %%
+//ユーザ定義サブルーチン
 int main(void)
 {
  printf("> ");
