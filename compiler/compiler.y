@@ -2,6 +2,7 @@
 //定義部
 #include <stdio.h>
 #include "compiler.tab.h"
+#include "ast.h"
  extern int yylex();//変数宣言
  extern int yyerror();//変数宣言
  %}
@@ -11,6 +12,15 @@
 %token IDENT NUMBER
 //非終端記号の型を指定するときに用いる
 //%type <dval> expression mulexp primary
+%union{
+ Node* np; // 抽象構文木
+ int ival; // 数
+ char* sp; // 変数名
+}
+%token <sp> IDENT
+%token <ival> NUMBER
+%type <np> expression term factor
+%type <ival> add_op mul_op
 %%
 //規則部
 /*<プログラム> ::= <変数宣言部><文集合>*/
