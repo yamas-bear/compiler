@@ -25,8 +25,8 @@ statements : statement statements
             | statement;
 /*<文> ::= <代入文>|<ループ分>|<条件分岐分>*/
 statement : assignment_stmt | loop_stmt | cond_stmt;
-/*<代入分> ::= <識別子>=<算術式>;*/
-assignment_stmt : IDENT ASSIGN expression SEMIC;
+/*<代入分> ::= <識別子>=<算術式>;|<識別子>[<数>] = <算術式>;*/
+assignment_stmt : IDENT ASSIGN expression SEMIC | IDENT L_BRACKET NUMBER R_BRACKET ASSIGN expression SEMIC;
 /*<算術式> ::= <算術式><加減演算子><項>|<項>*/
 expression : expression add_op term | term;
 /*<項> ::= <項><乗除演算子><因子>|<因子>*/
@@ -50,15 +50,15 @@ condition : expression cond_op expression;
 cond_op : EQ | LT | GT;
 /*<識別子> ::= <英字><英数字列>|<英字>*/
 // IDENT : alphabetic_char alphanumeric_char_string | alphabetic_char;
-/*<英数字列> ::= <英数字><英数字列>|<英数字>*/
+// /*<英数字列> ::= <英数字><英数字列>|<英数字>*/
 // alphanumeric_char_string : alphanumeric_char alphanumeric_char_string | alphanumeric_char;
-/*<英数字> ::- <英字>|<数字>*/
+// /*<英数字> ::- <英字>|<数字>*/
 // alphanumeric_char : alphabetic_char | number;
-/*<数> ::= <数字><数>|<数字>*/
+// /*<数> ::= <数字><数>|<数字>*/
 // NUMBER : number NUMBER | number;
-/*<英字>*/
+// /*<英字>*/
 // alphabetic_char : a|b|c|d|e|f|g|h|i|j|k|l|m|n|o|p|q|r|s|t|u|v|w|x|y|z|A|B|C|D|E|F|G|H|I|J|K|L|M|N|O|P|Q|R|S|T|U|V|W|X|Y|Z;
-/*<数字>*/
+// /*<数字>*/
 // number : 0|1|2|3|4|5|6|7|8|9;
 
 
