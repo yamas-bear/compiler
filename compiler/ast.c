@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "ast.h"
 
 #define MAXBUF 1024
@@ -111,17 +112,17 @@ void *printNodes(Node *node)
     cnt--;
 }
 
-int main(void)
-{
-    Node *top;
-    Node *p1;
-    p1 = build_Node_2(ADD_AST,
-                      build_Node_2(NUM_AST, NULL, NULL),
-                      build_Node_2(NUM_AST, NULL, NULL));
-    top = build_Node_2(ASSIGN_AST,
-                       build_Node_2(IDENT_AST, NULL, NULL),
-                       p1);
-    printNodes(top);
-    fprintf(stdout, "\n");
-    return 0;
-}
+// int main(void)
+// {
+//     Node *top;
+//     Node *p1;
+//     p1 = build_Node_2(ADD_AST,
+//                       build_Node_2(NUM_AST, NULL, NULL),
+//                       build_Node_2(NUM_AST, NULL, NULL));
+//     top = build_Node_2(ASSIGN_AST,
+//                        build_Node_2(IDENT_AST, NULL, NULL),
+//                        p1);
+//     printNodes(top);
+//     fprintf(stdout, "\n");
+//     return 0;
+// }

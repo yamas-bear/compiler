@@ -38,7 +38,8 @@ statement : assignment_stmt | loop_stmt | cond_stmt;
 /*<代入分> ::= <識別子>=<算術式>;|<識別子>[<数>] = <算術式>;*/
 assignment_stmt : IDENT ASSIGN expression SEMIC | IDENT L_BRACKET NUMBER R_BRACKET ASSIGN expression SEMIC;
 /*<算術式> ::= <算術式><加減演算子><項>|<項>*/
-expression : expression add_op term | term;
+expression : expression add_op term {$$ = build_Node_2($2, $1, $3);}
+| term;
 /*<項> ::= <項><乗除演算子><因子>|<因子>*/
 term : term mul_op factor | factor;
 /*<因子> ::= <変数>|(<算術式>)*/
@@ -48,7 +49,11 @@ add_op : ADD | SUB;
 /*<乗除演算子> ::= * | /*/
 mul_op : MUL | DIV;
 /*<変数> ::= <識別子>|<数>|<識別子>[<数>]*/
-var : IDENT | NUMBER | IDENT L_BRACKET NUMBER R_BRACKET;
+var : IDENT 
+{ $$ = build_ident_node(IDENT, yytext);}
+| NUMBER 
+{ $$ = build_num_node(NUM, $1);}
+| IDENT L_BRACKET NUMBER R_BRACKET;
 /*<ループ文> ::= while(<条件式>){<文集合>}*/
 loop_stmt : WHILE L_PARAN condition R_PARAN L_BRACE statements R_BRACE;
 /*<条件分岐文> ::= if(<条件式>){<文集合>}|if(<条件式>){<文集合>}else{<文集合>}*/
@@ -76,9 +81,13 @@ cond_op : EQ | LT | GT;
 //ユーザ定義サブルーチン
 int main(void)
 {
- if (yyparse()) {
- fprintf(stderr, "Error\n");
- return 1;
- }
- return 0;
+    int main(void){
+    int result;
+    result = yyparse();
+    if(!result){
+    printNodes(result); // 抽象構文木を出力するための関数．
+    }
+    return 0;
+    }
+
 } 
