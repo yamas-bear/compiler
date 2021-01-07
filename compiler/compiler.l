@@ -24,8 +24,10 @@
 "==" return EQ;
 "<" return LT;
 ">" return GT;
-[a-zA-Z][0-9a-zA-Z]* return IDENT;
--?(([0-9]+)|([0-9]*\.[0-9]+)([eE][-+]?[0-9]+)?) return NUMBER;
+[a-zA-Z][0-9a-zA-Z]* {yylval.sp = (char*)malloc(yyleng + 1); 
+strcpy(yylval.sp, yytext);                    
+return IDENT;}
+-?(([0-9]+)|([0-9]*\.[0-9]+)([eE][-+]?[0-9]+)?) {yylval.ival = atoi(yytext); return NUMBER;}
 [\t ] ; /* ignore whitespace */
 \n ;
 %%

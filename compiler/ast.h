@@ -1,6 +1,11 @@
+#define MAXBUF 64
+
 typedef enum
 {
     PROGRAM_AST,
+    DECLARATION_AST,
+    STATEMENT_AST,
+    STATEMENTS_AST,
     IDENT_AST,  //変数のノード型
     NUM_AST,    //整数のノード型
     ASSIGN_AST, //代入文の=のノード型
@@ -17,11 +22,7 @@ typedef enum
     WHILE_AST,  // whileのノード型
     FOR_AST,    // for
     IF_AST,     // ifのノード型
-    ARRAY_AST,
-    DEC_AST,
-    DECS_AST,
-    STATE_AST,
-    STATES_AST,
+    ARRAY_AST
 
 } Ntype;
 
@@ -30,6 +31,7 @@ typedef struct node
     Ntype type;
     int ivalue;
     char *variable;
+    int index[1];
     struct node *child;
     struct node *brother; //同じ親を持つノードのつながりを表す
 } Node;
@@ -41,11 +43,17 @@ typedef struct symbols
     struct symbols *next; // 次の変数へのリンク
     // これに加えてこの変数が割り当てられるメモリの番地の情報を入れることもできる
 } Symbols;
-
+Node *build_num_node(Ntype t, int n);
+Node *build_ident_node(Ntype t, char *s);
 //こどもを2つ持つノードを作る
+Node *build_Node_1(Ntype t, Node *p1);
 Node *build_Node_2(Ntype Ntype, Node *p1, Node *p2);
+Node *build_Node_3(Ntype t, Node *p1, Node *p2, Node *p3);
+Node *build_Node_4(Ntype t, Node *p1, Node *p2, Node *p3, Node *p4);
 
-void *printNodes(Node *obj);
+Node *build_Array_Node(Ntype t, char *s, int n);
+
+void printNodes(Node *obj);
 /*
 Node *p;
 p = (Node *)malloc(sizeof(Node));
