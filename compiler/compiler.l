@@ -1,7 +1,7 @@
 %{
 //定義部
-#include "compiler.tab.h"
 #include "ast.h"
+#include "compiler.tab.h"
 %}
 %%
 "define" return DEFINE;

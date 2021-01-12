@@ -115,7 +115,7 @@ Node *build_Array_Node(Ntype t, char *s, int n)
         printf("out of memory\n");
     }
     p->type = t;
-    p->variable = (char *)maloc(MAXBUF);
+    p->variable = (char *)malloc(MAXBUF);
     if (p->variable == NULL)
     {
         printf("out of memory\n");

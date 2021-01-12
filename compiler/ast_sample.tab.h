@@ -34,8 +34,8 @@
 /* Undocumented macros, especially those whose name start with YY_,
    are private implementation details.  Do not rely on them.  */
 
-#ifndef YY_YY_COMPILER_TAB_H_INCLUDED
-# define YY_YY_COMPILER_TAB_H_INCLUDED
+#ifndef YY_YY_AST_SAMPLE_TAB_H_INCLUDED
+# define YY_YY_AST_SAMPLE_TAB_H_INCLUDED
 /* Debug traces.  */
 #ifndef YYDEBUG
 # define YYDEBUG 0
@@ -69,8 +69,14 @@ extern int yydebug;
     EQ = 275,
     LT = 276,
     GT = 277,
-    IDENT = 278,
-    NUMBER = 279
+    MOD = 278,
+    GTEQ = 279,
+    LTEQ = 280,
+    INCREMENT = 281,
+    DECREMENT = 282,
+    FOR = 283,
+    IDENT = 284,
+    NUMBER = 285
   };
 #endif
 
@@ -78,13 +84,14 @@ extern int yydebug;
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
-#line 12 "compiler.y"
+#line 10 "ast_sample.y"
 
- Node* np; // 抽象構文木
- int ival; // 数
- char* sp; // 変数名
+  Node *np;
+  double dval;
+  int vblno;
+  char *str;
 
-#line 88 "compiler.tab.h"
+#line 95 "ast_sample.tab.h"
 
 };
 typedef union YYSTYPE YYSTYPE;
@@ -97,4 +104,4 @@ extern YYSTYPE yylval;
 
 int yyparse (void);
 
-#endif /* !YY_YY_COMPILER_TAB_H_INCLUDED  */
+#endif /* !YY_YY_AST_SAMPLE_TAB_H_INCLUDED  */

@@ -479,8 +479,8 @@ char *yytext;
 #line 1 "compiler.l"
 #line 2 "compiler.l"
 //定義部
-#include "compiler.tab.h"
 #include "ast.h"
+#include "compiler.tab.h"
 #line 485 "lex.yy.c"
 #line 486 "lex.yy.c"
 
@@ -861,30 +861,32 @@ return GT;
 case 21:
 YY_RULE_SETUP
 #line 27 "compiler.l"
-return IDENT;
+{yylval.sp = (char*)malloc(yyleng + 1); 
+strcpy(yylval.sp, yytext);                    
+return IDENT;}
 	YY_BREAK
 case 22:
 YY_RULE_SETUP
-#line 28 "compiler.l"
-return NUMBER;
+#line 30 "compiler.l"
+{yylval.ival = atoi(yytext); return NUMBER;}
 	YY_BREAK
 case 23:
 YY_RULE_SETUP
-#line 29 "compiler.l"
+#line 31 "compiler.l"
 ; /* ignore whitespace */
 	YY_BREAK
 case 24:
 /* rule 24 can match eol */
 YY_RULE_SETUP
-#line 30 "compiler.l"
+#line 32 "compiler.l"
 ;
 	YY_BREAK
 case 25:
 YY_RULE_SETUP
-#line 31 "compiler.l"
+#line 33 "compiler.l"
 ECHO;
 	YY_BREAK
-#line 888 "lex.yy.c"
+#line 890 "lex.yy.c"
 case YY_STATE_EOF(INITIAL):
 	yyterminate();
 
@@ -1889,5 +1891,5 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 31 "compiler.l"
+#line 33 "compiler.l"
 
