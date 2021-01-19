@@ -27,7 +27,7 @@ Node *top;
 /*規則部*/
 /*<プログラム> ::= <変数宣言部><文集合>*/
 program:declarations statements 
-{top = build_Node_2(PROGRAM_AST,build_Node_1(DECLARATION_AST,$1),build_Node_1(STATEMENT_AST,$2));}
+{top = build_Node_2(PROGRAM_AST,build_Node_1(DECLARATIONS_AST,$1),build_Node_1(STATEMENT_AST,$2));}
 ;
 
 /*<変数宣言部> ::= <宣言部><変数宣言部>|<宣言文>*/
@@ -38,9 +38,12 @@ declarations:decl_statement declarations
 
 /*<宣言文> ::= define<識別子>;|array<識別子>[<数>];*/
 decl_statement:DEFINE IDENT SEMIC
-{$$ = build_ident_node(IDENT_AST,$2);}
+{$$ = build_ident_node(IDENT_AST,$2);
+registerVarTable($2);}
 | ARRAY IDENT L_BRACKET NUMBER R_BRACKET SEMIC
-{$$ = build_Array_Node(ARRAY_AST,$2,$4);};
+{$$ = build_Array_Node(ARRAY_AST,$2,$4);
+int i=0;
+  while(i++ < $4)registerVarTable($2);};
 
 /*<文集合> ::= <文><文集合>|<文>*/
 statements:statement statements
@@ -139,11 +142,13 @@ cond_op:EQ
 
 int main(void)
 {
-    // int result;
-    // result = yyparse();
-    if(yyparse()){
-         return 1;
+    int result;
+    result = yyparse();
+    if(result == 0){
+        //  return 1;
+    // printNodes(top); // 抽象構文木を出力するための関数．
+        // printFirstMessage();
+        codegen(top,0);
     }
-    printNodes(top); // 抽象構文木を出力するための関数．
-    return 0;
+    // return result;
 } 

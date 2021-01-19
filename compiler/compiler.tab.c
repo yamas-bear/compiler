@@ -536,10 +536,10 @@ static const yytype_int8 yytranslate[] =
   /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_int8 yyrline[] =
 {
-       0,    29,    29,    34,    36,    40,    42,    46,    48,    53,
-      55,    57,    61,    63,    67,    69,    73,    75,    79,    81,
-      85,    87,    91,    93,    97,    99,   101,   105,   109,   111,
-     115,   119,   121,   123
+       0,    29,    29,    34,    36,    40,    43,    49,    51,    56,
+      58,    60,    64,    66,    70,    72,    76,    78,    82,    84,
+      88,    90,    94,    96,   100,   102,   104,   108,   112,   114,
+     118,   122,   124,   126
 };
 #endif
 
@@ -1373,7 +1373,7 @@ yyreduce:
     {
   case 2:
 #line 30 "compiler.y"
-{top = build_Node_2(PROGRAM_AST,build_Node_1(DECLARATION_AST,(yyvsp[-1].np)),build_Node_1(STATEMENT_AST,(yyvsp[0].np)));}
+{top = build_Node_2(PROGRAM_AST,build_Node_1(DECLARATIONS_AST,(yyvsp[-1].np)),build_Node_1(STATEMENT_AST,(yyvsp[0].np)));}
 #line 1378 "compiler.tab.c"
     break;
 
@@ -1391,180 +1391,183 @@ yyreduce:
 
   case 5:
 #line 41 "compiler.y"
-{(yyval.np) = build_ident_node(IDENT_AST,(yyvsp[-1].sp));}
-#line 1396 "compiler.tab.c"
+{(yyval.np) = build_ident_node(IDENT_AST,(yyvsp[-1].sp));
+registerVarTable((yyvsp[-1].sp));}
+#line 1397 "compiler.tab.c"
     break;
 
   case 6:
-#line 43 "compiler.y"
-{(yyval.np) = build_Array_Node(ARRAY_AST,(yyvsp[-4].sp),(yyvsp[-2].ival));}
-#line 1402 "compiler.tab.c"
+#line 44 "compiler.y"
+{(yyval.np) = build_Array_Node(ARRAY_AST,(yyvsp[-4].sp),(yyvsp[-2].ival));
+int i=0;
+  while(i++ < (yyvsp[-2].ival))registerVarTable((yyvsp[-4].sp));}
+#line 1405 "compiler.tab.c"
     break;
 
   case 7:
-#line 47 "compiler.y"
+#line 50 "compiler.y"
 {(yyval.np) = build_Node_2(STATEMENTS_AST,(yyvsp[-1].np),(yyvsp[0].np));}
-#line 1408 "compiler.tab.c"
+#line 1411 "compiler.tab.c"
     break;
 
   case 8:
-#line 49 "compiler.y"
+#line 52 "compiler.y"
 {(yyval.np) = build_Node_1(STATEMENTS_AST,(yyvsp[0].np));}
-#line 1414 "compiler.tab.c"
+#line 1417 "compiler.tab.c"
     break;
 
   case 9:
-#line 54 "compiler.y"
+#line 57 "compiler.y"
 {(yyval.np) = (yyvsp[0].np);}
-#line 1420 "compiler.tab.c"
+#line 1423 "compiler.tab.c"
     break;
 
   case 10:
-#line 56 "compiler.y"
+#line 59 "compiler.y"
 {(yyval.np) = (yyvsp[0].np);}
-#line 1426 "compiler.tab.c"
+#line 1429 "compiler.tab.c"
     break;
 
   case 11:
-#line 58 "compiler.y"
+#line 61 "compiler.y"
 {(yyval.np) = (yyvsp[0].np);}
-#line 1432 "compiler.tab.c"
+#line 1435 "compiler.tab.c"
     break;
 
   case 12:
-#line 62 "compiler.y"
+#line 65 "compiler.y"
 {(yyval.np) = build_Node_2(ASSIGN_AST,build_ident_node(IDENT_AST,(yyvsp[-3].sp)),(yyvsp[-1].np));}
-#line 1438 "compiler.tab.c"
+#line 1441 "compiler.tab.c"
     break;
 
   case 13:
-#line 64 "compiler.y"
+#line 67 "compiler.y"
 {(yyval.np) = build_Node_3(ASSIGN_AST,build_ident_node(IDENT_AST,(yyvsp[-6].sp)),build_num_node(NUM_AST,(yyvsp[-4].ival)),(yyvsp[-1].np));}
-#line 1444 "compiler.tab.c"
+#line 1447 "compiler.tab.c"
     break;
 
   case 14:
-#line 68 "compiler.y"
+#line 71 "compiler.y"
 {(yyval.np) = build_Node_2((yyvsp[-1].ival), (yyvsp[-2].np), (yyvsp[0].np));}
-#line 1450 "compiler.tab.c"
+#line 1453 "compiler.tab.c"
     break;
 
   case 15:
-#line 70 "compiler.y"
+#line 73 "compiler.y"
 {(yyval.np) = (yyvsp[0].np);}
-#line 1456 "compiler.tab.c"
+#line 1459 "compiler.tab.c"
     break;
 
   case 16:
-#line 74 "compiler.y"
+#line 77 "compiler.y"
 {(yyval.np) = build_Node_2((yyvsp[-1].ival),(yyvsp[-2].np),(yyvsp[0].np));}
-#line 1462 "compiler.tab.c"
+#line 1465 "compiler.tab.c"
     break;
 
   case 17:
-#line 76 "compiler.y"
+#line 79 "compiler.y"
 {(yyval.np) = (yyvsp[0].np);}
-#line 1468 "compiler.tab.c"
+#line 1471 "compiler.tab.c"
     break;
 
   case 18:
-#line 80 "compiler.y"
+#line 83 "compiler.y"
 {(yyval.np) = (yyvsp[0].np);}
-#line 1474 "compiler.tab.c"
+#line 1477 "compiler.tab.c"
     break;
 
   case 19:
-#line 82 "compiler.y"
+#line 85 "compiler.y"
 {(yyval.np) = (yyvsp[-1].np);}
-#line 1480 "compiler.tab.c"
+#line 1483 "compiler.tab.c"
     break;
 
   case 20:
-#line 86 "compiler.y"
+#line 89 "compiler.y"
 {(yyval.ival) = ADD_AST;}
-#line 1486 "compiler.tab.c"
+#line 1489 "compiler.tab.c"
     break;
 
   case 21:
-#line 88 "compiler.y"
+#line 91 "compiler.y"
 {(yyval.ival) = SUB_AST;}
-#line 1492 "compiler.tab.c"
+#line 1495 "compiler.tab.c"
     break;
 
   case 22:
-#line 92 "compiler.y"
+#line 95 "compiler.y"
 {(yyval.ival) = MUL_AST;}
-#line 1498 "compiler.tab.c"
+#line 1501 "compiler.tab.c"
     break;
 
   case 23:
-#line 94 "compiler.y"
+#line 97 "compiler.y"
 {(yyval.ival) = DIV_AST;}
-#line 1504 "compiler.tab.c"
+#line 1507 "compiler.tab.c"
     break;
 
   case 24:
-#line 98 "compiler.y"
+#line 101 "compiler.y"
 { (yyval.np) = build_ident_node(IDENT_AST, (yyvsp[0].sp));}
-#line 1510 "compiler.tab.c"
+#line 1513 "compiler.tab.c"
     break;
 
   case 25:
-#line 100 "compiler.y"
+#line 103 "compiler.y"
 { (yyval.np) = build_num_node(NUM_AST, (yyvsp[0].ival));}
-#line 1516 "compiler.tab.c"
+#line 1519 "compiler.tab.c"
     break;
 
   case 26:
-#line 102 "compiler.y"
+#line 105 "compiler.y"
 {(yyval.np) = build_Array_Node(ARRAY_AST,(yyvsp[-3].sp),(yyvsp[-1].ival));}
-#line 1522 "compiler.tab.c"
+#line 1525 "compiler.tab.c"
     break;
 
   case 27:
-#line 106 "compiler.y"
+#line 109 "compiler.y"
 {(yyval.np) = build_Node_2(WHILE_AST,(yyvsp[-4].np),(yyvsp[-1].np));}
-#line 1528 "compiler.tab.c"
+#line 1531 "compiler.tab.c"
     break;
 
   case 28:
-#line 110 "compiler.y"
+#line 113 "compiler.y"
 {(yyval.np) = build_Node_2(IF_AST,(yyvsp[-4].np),(yyvsp[-1].np));}
-#line 1534 "compiler.tab.c"
+#line 1537 "compiler.tab.c"
     break;
 
   case 29:
-#line 112 "compiler.y"
+#line 115 "compiler.y"
 {(yyval.np) = build_Node_3(IF_AST,(yyvsp[-8].np),(yyvsp[-5].np),(yyvsp[-1].np));}
-#line 1540 "compiler.tab.c"
+#line 1543 "compiler.tab.c"
     break;
 
   case 30:
-#line 116 "compiler.y"
+#line 119 "compiler.y"
 {(yyval.np) = build_Node_2((yyvsp[-1].ival),(yyvsp[-2].np),(yyvsp[0].np));}
-#line 1546 "compiler.tab.c"
+#line 1549 "compiler.tab.c"
     break;
 
   case 31:
-#line 120 "compiler.y"
+#line 123 "compiler.y"
 {(yyval.ival) = EQ_AST;}
-#line 1552 "compiler.tab.c"
+#line 1555 "compiler.tab.c"
     break;
 
   case 32:
-#line 122 "compiler.y"
+#line 125 "compiler.y"
 {(yyval.ival) = LT_AST;}
-#line 1558 "compiler.tab.c"
+#line 1561 "compiler.tab.c"
     break;
 
   case 33:
-#line 124 "compiler.y"
+#line 127 "compiler.y"
 {(yyval.ival) = GT_AST;}
-#line 1564 "compiler.tab.c"
+#line 1567 "compiler.tab.c"
     break;
 
 
-#line 1568 "compiler.tab.c"
+#line 1571 "compiler.tab.c"
 
       default: break;
     }
@@ -1796,7 +1799,7 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 125 "compiler.y"
+#line 128 "compiler.y"
 
 /*<識別子> ::= <英字><英数字列>|<英字>*/
 // IDENT : alphabetic_char alphanumeric_char_string | alphabetic_char;
@@ -1814,11 +1817,13 @@ yyreturn:
 
 int main(void)
 {
-    // int result;
-    // result = yyparse();
-    if(yyparse()){
-         return 1;
+    int result;
+    result = yyparse();
+    if(result == 0){
+        //  return 1;
+    // printNodes(top); // 抽象構文木を出力するための関数．
+        // printFirstMessage();
+        codegen(top,0);
     }
-    printNodes(top); // 抽象構文木を出力するための関数．
-    return 0;
+    // return result;
 } 

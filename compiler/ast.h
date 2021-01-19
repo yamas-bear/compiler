@@ -4,6 +4,7 @@ typedef enum
 {
     PROGRAM_AST,
     DECLARATION_AST,
+    DECLARATIONS_AST,
     STATEMENT_AST,
     STATEMENTS_AST,
     IDENT_AST,  //変数のノード型
@@ -43,6 +44,11 @@ typedef struct symbols
     struct symbols *next; // 次の変数へのリンク
     // これに加えてこの変数が割り当てられるメモリの番地の情報を入れることもできる
 } Symbols;
+
+extern int depth;
+extern Symbols *varTable, *tableStart;
+extern int varNum;
+
 Node *build_num_node(Ntype t, int n);
 Node *build_ident_node(Ntype t, char *s);
 //こどもを2つ持つノードを作る
@@ -54,10 +60,8 @@ Node *build_Node_4(Ntype t, Node *p1, Node *p2, Node *p3, Node *p4);
 Node *build_Array_Node(Ntype t, char *s, int n);
 
 void printNodes(Node *obj);
-/*
-Node *p;
-p = (Node *)malloc(sizeof(Node));
-p->child = p1;
-p1->brother = p2; // p->child->brother = p2 でもよい
-p->brother = NULL;
-*/
+
+void generateArith(Node *obj, Ntype setType, int stackDepth);
+void codegen(Node *obj, int depth);
+void printFirstMessage();
+void registerVarTable(char *s);
