@@ -1,3 +1,0 @@
-flex sample.l
-bison -d sample.y
-gcc sample.tab.c lex.yy.c -o sample -lfl -ly
