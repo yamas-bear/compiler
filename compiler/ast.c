@@ -4,7 +4,7 @@
 #include "ast.h"
 
 Symbols *varTable = NULL; //記号表
-int varNum = 0;
+int varNum = 0, label = 0;
 //数値ノードの作成
 Node *
 build_num_node(Ntype t, int n)
@@ -127,7 +127,7 @@ Node *build_Array_Node(Ntype t, char *s, int n)
     return p;
 }
 
-int depth = 0;
+int depth = 0; //表示したときに深さを示したほうが分かりやすいという判断
 /* Node の表示*/
 void printNodes(Node *node)
 {
@@ -138,7 +138,7 @@ void printNodes(Node *node)
         {
             printf("   ");
         }
-        printf("ト");
+        printf("%d", node->type); //nodeタイプを表示
         //print content
         //数値ならば
         if (NUM_AST == node->type)
@@ -299,18 +299,18 @@ void generateArith(Node *obj,
 
         //変数
     case IDENT_AST:
-        printf("        add        $v0, $t%d, $zero\n",
+        printf("        add      $v0, $t%d, $zero\n",
                searchVariableNum(obj->child->variable));
         printf("        nop\n");
-        printf("        sw         $v0, %d($sp)\n",
+        printf("        sw       $v0, %d($sp)\n",
                stackOffset);
         break;
 
         //値
     case NUM_AST:
-        printf("        addi       $v0, $zero, %d\n",
+        printf("        addi     $v0, $zero, %d\n",
                obj->child->ivalue);
-        printf("        sw         $v0, %d($sp)\n",
+        printf("        sw       $v0, %d($sp)\n",
                stackOffset);
         break;
     }
@@ -333,27 +333,27 @@ void generateArith(Node *obj,
 
         //変数
     case IDENT_AST:
-        printf("        add        $v0, $t%d, $zero\n",
+        printf("        add      $v0, $t%d, $zero\n",
                searchVariableNum(obj->child->brother->variable));
         printf("        nop\n");
-        printf("        sw         $v0, %d($sp)\n",
+        printf("        sw       $v0, %d($sp)\n",
                stackOffset);
         break;
 
         //値
     case NUM_AST:
-        printf("        addi       $v0, $zero, %d\n",
+        printf("        addi      $v0, $zero, %d\n",
                obj->child->brother->ivalue);
-        printf("        sw         $v0, %d($sp)\n",
+        printf("        sw       $v0, %d($sp)\n",
                stackOffset);
         break;
     }
 
     //スタックから$v0, $v1に書き込む
-    printf("        lw         $v0, %d($sp)\n",
+    printf("        lw       $v0, %d($sp)\n",
            (stackDepth + 1) * 4);
     printf("        nop\n");
-    printf("        lw         $v1, %d($sp)\n",
+    printf("        lw       $v1, %d($sp)\n",
            (stackDepth + 2) * 4);
     printf("        nop\n");
 
@@ -361,22 +361,22 @@ void generateArith(Node *obj,
     switch (setType)
     {
     case ADD_AST:
-        printf("        add        $v0, $v0, $v1");
+        printf("        add      $v0, $v0, $v1");
         break;
     case SUB_AST:
-        printf("        sub        $v0, $v0, $v1");
+        printf("        sub      $v0, $v0, $v1");
         break;
     case MUL_AST:
-        printf("        mult       $v0, $v1\n");
-        printf("        mflo       $v0");
+        printf("        mult     $v0, $v1\n");
+        printf("        mflo     $v0");
         break;
     case DIV_AST:
-        printf("        div         $v0, $v1\n");
-        printf("        mflo       $v0");
+        printf("        div       $v0, $v1\n");
+        printf("        mflo     $v0");
         break;
     }
     printf("# arith\n");
-    printf("        sw         $v0, %d($sp)\n",
+    printf("        sw       $v0, %d($sp)\n",
            stackDepth * 4);
 }
 
@@ -385,13 +385,13 @@ void generateArith(Node *obj,
 void codegen(Node *obj, int depth)
 {
     Ntype opr;
-    // int labelMem, condNum = 0;
+    int labelMem = 0, condNum = 0;
     if (obj != NULL)
     {
         switch (obj->type)
         {
         case PROGRAM_AST:
-            //テキスト部
+            //テキスト部(STATEMENT_AST)
             codegen(obj->child->brother, depth + 1);
             //データ部
             codegen(obj->child, depth + 1);
@@ -417,92 +417,72 @@ void codegen(Node *obj, int depth)
             {
                 codegen(obj->child->brother, depth + 1);
                 //計算結果を左辺に代入
-                printf("        ori        $t%d, $v0, 0 # assign result", searchVariableNum(obj->child->variable));
+                printf("        ori      $t%d, $v0, 0 # assign result", searchVariableNum(obj->child->variable));
 
                 //右辺が数字ならそのまま代入
             }
             else if (NUM_AST == opr)
             {
                 //そのまま左辺に代入
-                printf("        li       $t%d, %d # assign num", searchVariableNum(obj->child->variable), obj->child->brother->ivalue);
+                printf("        li     $t%d, %d # assign num", searchVariableNum(obj->child->variable), obj->child->brother->ivalue);
             }
 
             printf("\n");
             break;
 
-        // case ADD_AST: //done
-        //     generateArith(obj, ADD_AST, 0);
-        //     break;
+        case ADD_AST: //done
+            generateArith(obj, ADD_AST, 0);
+            break;
 
-        // case SUB_AST: //done
-        //     generateArith(obj, SUB_AST, 0);
-        //     break;
+        case SUB_AST: //done
+            generateArith(obj, SUB_AST, 0);
+            break;
 
-        // case MUL_AST: //done
-        //     generateArith(obj, MUL_AST, 0);
-        //     break;
+        case MUL_AST: //done
+            generateArith(obj, MUL_AST, 0);
+            break;
 
-        // case DIV_AST: //done
-        //     generateArith(obj, DIV_AST, 0);
-        //     break;
+        case DIV_AST: //done
+            generateArith(obj, DIV_AST, 0);
+            break;
 
-        // case LT_AST: //done
-        //     if (NUM_AST == obj->child->brother->type)
-        //     { //条件文の右が数字の時
-        //         printf("        li         $s0, %d\n", obj->child->brother->ivalue);
-        //     }
-        //     printf("        slt        $v0, ");
-        //     generateCode(obj->child, depth + 1);
-        //     printf(", ");
-        //     generateCode(obj->child->brother, depth + 1);
-        //     printf("\n");
-        //     break;
+        case LT_AST: //done
+            if (NUM_AST == obj->child->brother->type)
+            { //条件文の右が数字の時
+                printf("        li       $s0, %d\n", obj->child->brother->ivalue);
+            }
+            printf("        slt      $v0, ");
+            codegen(obj->child, depth + 1);
+            printf(", ");
+            codegen(obj->child->brother, depth + 1);
+            printf("\n");
+            break;
 
-        // case GT_AST:
-        //     printf("        sgt        $v0, ");
-        //     generateCode(obj->child, depth + 1);
-        //     printf(", ");
-        //     generateCode(obj->child->brother, depth + 1);
-        //     printf("\n");
-        //     break;
+        case GT_AST:
+            printf("        sgt        $v0, ");
+            codegen(obj->child, depth + 1);
+            printf(", ");
+            codegen(obj->child->brother, depth + 1);
+            printf("\n");
+            break;
 
-        // case GTEQ_AST:
-        //     printf("        sge        $v0, ");
-        //     generateCode(obj->child, depth + 1);
-        //     printf(", ");
-        //     generateCode(obj->child->brother, depth + 1);
-        //     printf("\n");
-        //     break;
-
-        // case LTEQ_AST:
-        //     printf("        sle        $v0, ");
-        //     generateCode(obj->child, depth + 1);
-        //     printf(", ");
-        //     generateCode(obj->child->brother, depth + 1);
-        //     printf("\n");
-        //     break;
-
-        // case WHILE_AST:
-        //     //開始ラベル
-        //     labelMem = label++;
-        //     printf("$L%d:\n", labelMem);
-        //     //ループ開始条件
-        //     generateCode(obj->child, depth + 1);
-        //     printf("        beq        $v0, $zero, $LEnd%d\n", labelMem);
-        //     printf("        nop\n");
-        //     //処理
-        //     generateCode(obj->child->brother, depth + 1);
-        //     //ループ条件
-        //     generateCode(obj->child, depth + 1);
-        //     printf("        beq        $v0, $s7, $L%d\n", labelMem);
-        //     printf("        nop\n");
-        //     //終了ラベル
-        //     printf("$LEnd%d:\n", labelMem);
-        //     break;
-
-        // case FOR_AST:
-
-        //     break;
+        case WHILE_AST:
+            //開始ラベル
+            printf("$L%d:\n", labelMem);
+            //ループ開始条件
+            codegen(obj->child, depth + 1);
+            printf("        beq      $v0, $zero, $L%dEnd\n", labelMem);
+            printf("        nop\n");
+            //処理
+            codegen(obj->child->brother, depth + 1);
+            //ループ条件
+            codegen(obj->child, depth + 1);
+            printf("        beq      $v0, $s7, $L%d\n", labelMem);
+            printf("        nop\n");
+            //終了ラベル
+            printf("$L%dEnd:\n", labelMem);
+            labelMem++;
+            break;
 
         // case IF_AST:
         //     //条件
@@ -552,11 +532,21 @@ void codegen(Node *obj, int depth)
             printf("	la	$sp, INITIAL_SP\n");
             printf("	jal	main\n");
             printf("	nop\n");
-            printf("stop:\n");
-            printf("	j stop\n");
+            printf("	li	$v0, stop_service\n");
+            printf("	syscall\n");
             printf("	nop\n\n");
-            printf("  　.text 0x00001000\n");
             printf("main:\n");
+            printf("    li        $s7, 1\n");
+            codegen(obj->child, depth + 1);
+            printf("\n");
+            printf("        jr         $ra\n");
+            printf("        nop\n\n");
+            break;
+        case STATEMENTS_AST:
+            codegen(obj->child, depth + 1);
+            //2つめの要素がある場合
+            codegen(obj->child->brother, depth + 1);
+            break;
         }
     }
 }

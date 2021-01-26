@@ -2,28 +2,28 @@
 
 typedef enum
 {
-    PROGRAM_AST,
-    DECLARATION_AST,
-    DECLARATIONS_AST,
-    STATEMENT_AST,
-    STATEMENTS_AST,
-    IDENT_AST,  //変数のノード型
-    NUM_AST,    //整数のノード型
-    ASSIGN_AST, //代入文の=のノード型
-    ADD_AST,    //加算演算子のノード型
-    SUB_AST,    //減算演算子のノード型
-    MUL_AST,    // *
-    DIV_AST,    // /
-    MOD_AST,    // %
-    EQ_AST,     //==
-    LT_AST,     //<
-    GT_AST,     //>
-    GTEQ_AST,   //<=
-    LTEQ_AST,   //>=
-    WHILE_AST,  // whileのノード型
-    FOR_AST,    // for
-    IF_AST,     // ifのノード型
-    ARRAY_AST
+    PROGRAM_AST,      //0
+    DECLARATION_AST,  //1
+    DECLARATIONS_AST, //2
+    STATEMENT_AST,    //3
+    STATEMENTS_AST,   //4
+    IDENT_AST,        //変数のノード型(5)
+    NUM_AST,          //整数のノード型(6)
+    ASSIGN_AST,       //代入文の=のノード型(7)
+    ADD_AST,          //加算演算子のノード型(8)
+    SUB_AST,          //減算演算子のノード型(9)
+    MUL_AST,          // *(10)
+    DIV_AST,          // /(11)
+    MOD_AST,          // %(12)
+    EQ_AST,           //==(13)
+    LT_AST,           //<(14)
+    GT_AST,           //>(15)
+    GTEQ_AST,         //<=(16)
+    LTEQ_AST,         //>=(17)
+    WHILE_AST,        // whileのノード型(18)
+    FOR_AST,          // for(19)
+    IF_AST,           // ifのノード型(20)
+    ARRAY_AST         //21
 
 } Ntype;
 

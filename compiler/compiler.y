@@ -146,7 +146,7 @@ int main(void)
     result = yyparse();
     if(result == 0){
         //  return 1;
-    // printNodes(top); // 抽象構文木を出力するための関数．
+    printNodes(top); // 抽象構文木を出力するための関数．
         // printFirstMessage();
         codegen(top,0);
     }
