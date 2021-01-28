@@ -21,9 +21,8 @@ typedef enum
     GTEQ_AST,         //<=(16)
     LTEQ_AST,         //>=(17)
     WHILE_AST,        // whileのノード型(18)
-    FOR_AST,          // for(19)
-    IF_AST,           // ifのノード型(20)
-    ARRAY_AST         //21
+    IF_AST,           // ifのノード型(19)
+    ARRAY_AST         //20
 
 } Ntype;
 
@@ -62,6 +61,6 @@ Node *build_Array_Node(Ntype t, char *s, int n);
 void printNodes(Node *obj);
 
 void generateArith(Node *obj, Ntype setType, int stackDepth);
-void codegen(Node *obj, int depth);
+void codegen(Node *obj);
 void printFirstMessage();
 void registerVarTable(char *s);

@@ -1823,7 +1823,7 @@ int main(void)
         //  return 1;
     printNodes(top); // 抽象構文木を出力するための関数．
         // printFirstMessage();
-        codegen(top,0);
+        codegen(top);
     }
     // return result;
 } 
