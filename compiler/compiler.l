@@ -27,7 +27,7 @@
 [a-zA-Z][0-9a-zA-Z]* {yylval.sp = (char*)malloc(yyleng + 1); 
 strcpy(yylval.sp, yytext);                    
 return IDENT;}
--?(([0-9]+)|([0-9]*\.[0-9]+)([eE][-+]?[0-9]+)?) {yylval.ival = atoi(yytext); return NUMBER;}
+[0-9]+|[0-9]*\.[0-9]+ {yylval.ival = atoi(yytext); return NUMBER;}
 [\t ] ; /* ignore whitespace */
 \n ;
 %%

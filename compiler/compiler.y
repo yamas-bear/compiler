@@ -41,9 +41,12 @@ decl_statement:DEFINE IDENT SEMIC
 {$$ = build_ident_node(IDENT_AST,$2);
 registerVarTable($2);}
 | ARRAY IDENT L_BRACKET NUMBER R_BRACKET SEMIC
-{$$ = build_Array_Node(ARRAY_AST,$2,$4);
+{
+$$ = build_Array_Node(ARRAY_AST,$2,$4);
 int i=0;
-  while(i++ < $4)registerVarTable($2);};
+while(i < $4) {registerVarTable_byArray($2,i);
+i++;}
+};
 
 /*<文集合> ::= <文><文集合>|<文>*/
 statements:statement statements
@@ -64,7 +67,7 @@ statement:assignment_stmt
 assignment_stmt:IDENT ASSIGN expression SEMIC
 {$$ = build_Node_2(ASSIGN_AST,build_ident_node(IDENT_AST,$1),$3);} 
 | IDENT L_BRACKET NUMBER R_BRACKET ASSIGN expression SEMIC
-{$$ = build_Node_3(ASSIGN_AST,build_ident_node(IDENT_AST,$1),build_num_node(NUM_AST,$3),$6);};
+{$$ = build_Node_2(ASSIGN_AST,build_Array_Node_ref(IDENT_AST,$1,$3),$6);};
 
 /*<算術式> ::= <算術式><加減演算子><項>|<項>*/
 expression:expression add_op term 
@@ -108,11 +111,17 @@ var:IDENT
 loop_stmt:WHILE L_PARAN condition R_PARAN L_BRACE statements R_BRACE
 {$$ = build_Node_2(WHILE_AST,$3,$6);};
 
-/*<条件分岐文> ::= if(<条件式>){<文集合>}|if(<条件式>){<文集合>}else{<文集合>}*/
+/*<条件分岐文> ::= if(<条件式>){<文集合>}|if(<条件式>){<文集合>}else{<文集合>}|
+if(<条件式>){<文集合>}else if(<条件式>){<文集合>}else{<文集合>}|
+if(<条件式>){<文集合>}else if(<条件式>){<文集合>}else if(<条件式>){<文集合>}else{<文集合>}|*/
 cond_stmt:IF L_PARAN condition R_PARAN L_BRACE statements R_BRACE
 {$$ = build_Node_2(IF_AST,$3,$6);}
 | IF L_PARAN condition R_PARAN L_BRACE statements R_BRACE ELSE L_BRACE statements R_BRACE
-{$$ = build_Node_3(IF_AST,$3,$6,$10);};
+{$$ = build_Node_3(IF_AST,$3,$6,$10);}
+| IF L_PARAN condition R_PARAN L_BRACE statements R_BRACE ELSE IF L_PARAN condition R_PARAN L_BRACE statements R_BRACE ELSE L_BRACE statements R_BRACE
+{$$ = build_Node_3(IF_AST,$3,$6,build_Node_3(IF_AST,$11,$14,$18));}
+| IF L_PARAN condition R_PARAN L_BRACE statements R_BRACE ELSE IF L_PARAN condition R_PARAN L_BRACE statements R_BRACE ELSE IF L_PARAN condition R_PARAN L_BRACE statements R_BRACE ELSE L_BRACE statements R_BRACE
+{$$ = build_Node_3(IF_AST,build_Node_2(IF_AST,$3,$6),build_Node_2(IF_AST,$11,$14),build_Node_3(IF_AST,$19,$22,$26));};
 
 /*<条件式> ::= <算術式><比較演算子><算術式>*/
 condition:expression cond_op expression
@@ -145,9 +154,7 @@ int main(void)
     int result;
     result = yyparse();
     if(result == 0){
-        //  return 1;
-    printNodes(top); // 抽象構文木を出力するための関数．
-        // printFirstMessage();
+        printNodes(top); // 抽象構文木を出力するための関数．
         codegen(top);
     }
     // return result;

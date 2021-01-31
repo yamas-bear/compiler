@@ -3,7 +3,7 @@
 #include <string.h>
 #include "ast.h"
 
-Symbols *varTable = NULL; //記号表
+Symbols *symbol_table = NULL; //記号表
 int label = 0;
 //数値ノードの作成
 Node *
@@ -111,19 +111,54 @@ Node *build_Node_4(Ntype t, Node *p1, Node *p2, Node *p3, Node *p4)
 Node *build_Array_Node(Ntype t, char *s, int n)
 {
     Node *p;
-    p = (Node *)malloc(sizeof(Node));
-    if (p == NULL)
+    if ((p = (Node *)malloc(sizeof(Node))) == NULL)
     {
         printf("out of memory\n");
+        //yyerror("out of memory");
     }
     p->type = t;
-    p->variable = (char *)malloc(MAXBUF);
+    //変数名を付与
+    p->variable = (char *)malloc(sizeof(MAXBUF));
     if (p->variable == NULL)
     {
         printf("out of memory\n");
+        //yyerror("out of memory");
     }
     strcpy(p->variable, s);
+    //要素番号
     p->index[0] = n;
+    p->index[1] = 0; //サイズゼロ
+
+    return p;
+}
+
+Node *build_Array_Node_ref(Ntype t, char *s, int n)
+{
+    Node *p;
+    if ((p = (Node *)malloc(sizeof(Node))) == NULL)
+    {
+        printf("out of memory\n");
+        //yyerror("out of memory");
+    }
+    p->type = t;
+    //変数名を付与
+    p->variable = (char *)malloc(sizeof(MAXBUF));
+    if (p->variable == NULL)
+    {
+        printf("out of memory\n");
+        //yyerror("out of memory");
+    }
+    char hyp[8];
+    char *str = (char *)malloc(sizeof(s) * 2);
+    *str = *s;
+    snprintf(hyp, 8, "%d", n); //char*に変換
+    strcat(str, hyp);
+    strcpy(p->variable, str);
+    //要素番号
+    p->index[0] = n;
+    p->index[1] = 0; //サイズゼロ
+
+    free(str);
     return p;
 }
 
@@ -153,6 +188,10 @@ void printNodes(Node *node)
         {
             printf(" : %s", node->variable);
         }
+        else if (ARRAY_AST == node->type)
+        {
+            printf(" : %s[%d]", node->variable, node->index[0]);
+        }
         printf("\n");
 
         //こどものノードが存在するなら
@@ -175,7 +214,7 @@ void printNodes(Node *node)
 // 記号表から変数名に合う変数番号を探す
 Symbols *searchVariable(char *s)
 {
-    Symbols *p = varTable;
+    Symbols *p = symbol_table;
     while (0 != strcmp(p->symbolname, s))
     {
         if (NULL == p->next)
@@ -197,9 +236,10 @@ int varNumber = 0;
 void registerVarTable(char *s)
 {
     Symbols *p;
+    // printf("%s\n", s);
 
     //変数名かぶりをチェック
-    p = varTable;
+    p = symbol_table;
     if (NULL != p)
     {
         if (0 == strcmp(s, p->symbolname))
@@ -211,7 +251,7 @@ void registerVarTable(char *s)
         {
             if (0 == strcmp(s, p->next->symbolname))
             {
-                printf("既に変数が宣言されています : %s\n", s);
+                printf("既に変数が宣言されています 2: %s\n", s);
                 exit(1);
             }
             p = p->next; //次の変数を見る
@@ -219,26 +259,26 @@ void registerVarTable(char *s)
     }
 
     //何も変数が宣言されていないとき
-    if (NULL == varTable)
+    if (NULL == symbol_table)
     {
-        varTable = (Symbols *)malloc(sizeof(Symbols)); //Symbols型のSymbolsの領域を確保する
-        if (NULL == varTable)
+        symbol_table = (Symbols *)malloc(sizeof(Symbols)); //Symbols型のSymbolsの領域を確保する
+        if (NULL == symbol_table)
         {
             //領域の確保が出来なかった場合
             printf("領域の確保ができませんでした\n");
         }
-        p = varTable;
+        p = symbol_table;
         //2個目以降
     }
     else
     {
         //テーブルの終端を指す
-        p = varTable;
+        p = symbol_table;
         while (NULL != p->next)
         {
             p = p->next;
         }
-        p->next = (Symbols *)malloc(sizeof(Symbols)); //varTableの最後に領域を追加する
+        p->next = (Symbols *)malloc(sizeof(Symbols)); //symbol_tableの最後に領域を追加する
         if (NULL == p->next)
         {
             //領域を確保できなかった場合
@@ -262,43 +302,90 @@ void registerVarTable(char *s)
     p->next = NULL;
 }
 
+void registerVarTable_byArray(char *s, int n)
+{
+    char hyp[8];
+    char *str = (char *)malloc(sizeof(s) * 2);
+    *str = *s;
+    snprintf(hyp, 8, "%d", n); //char*に変換
+    strcat(str, hyp);
+    registerVarTable(str);
+    // build_ident_node(IDENT_AST, str);
+    free(str);
+}
+
 //四則演算のための関数
 void code_calc(Node *child, Node *brother)
 {
     Symbols *child_symbols = searchVariable(child->variable);
-    if (brother->type == ADD_AST)
+    if (brother->child->brother != NULL)
     {
-        Symbols *brother_child_ident = searchVariable(brother->child->variable);
-        if (brother->child->brother->type == IDENT_AST)
+        if (brother->type == ADD_AST)
         {
-            Symbols *brother_brother_ident = searchVariable(brother->child->brother->variable);
-            printf("        add      $t%d, $t%d, $t%d # %s = %s + %s", child_symbols->symno, brother_child_ident->symno, brother_brother_ident->symno, child_symbols->symbolname, brother_child_ident->symbolname, brother_brother_ident->symbolname);
+            if (brother->child->brother->type == IDENT_AST && brother->child->type == IDENT_AST)
+            {
+                Symbols *brother_child_ident = searchVariable(brother->child->variable);
+                Symbols *brother_brother_ident = searchVariable(brother->child->brother->variable);
+                printf("        add      $t%d, $t%d, $t%d # %s = %s + %s", child_symbols->symno, brother_child_ident->symno, brother_brother_ident->symno, child_symbols->symbolname, brother_child_ident->symbolname, brother_brother_ident->symbolname);
+            }
+            else if (brother->child->brother->type == NUM_AST && brother->child->type == IDENT_AST)
+            {
+                Symbols *brother_child_ident = searchVariable(brother->child->variable);
+                int brother_brother_number = brother->child->brother->ivalue;
+                printf("        addi     $t%d, $t%d, %d # %s = %s + %d", child_symbols->symno, brother_child_ident->symno, brother_brother_number, child_symbols->symbolname, brother_child_ident->symbolname, brother_brother_number);
+            }
+            else
+            {
+                int brother_brother_number = brother->child->brother->ivalue;
+                int brother_child_number = brother->child->ivalue;
+                printf("        addi     $t%d, $t%d, %d # %s = %s + %d\n", child_symbols->symno, child_symbols->symno, brother_child_number, child_symbols->symbolname, child_symbols->symbolname, brother_child_number);
+                printf("        addi     $t%d, $t%d, %d # %s = %s + %d", child_symbols->symno, child_symbols->symno, brother_brother_number, child_symbols->symbolname, child_symbols->symbolname, brother_brother_number);
+            }
         }
-        else
+        else if (brother->type == SUB_AST)
         {
-            int brother_brother_number = brother->child->brother->ivalue;
-            printf("        addi     $t%d, $t%d, %d # %s = %s + %d", child_symbols->symno, brother_child_ident->symno, brother_brother_number, child_symbols->symbolname, brother_child_ident->symbolname, brother_brother_number);
+        }
+        else if (brother->type == MUL_AST)
+        {
+            if (brother->child->brother->type == IDENT_AST && brother->child->type == IDENT_AST)
+            {
+                Symbols *brother_child_ident = searchVariable(brother->child->variable);
+                Symbols *brother_brother_ident = searchVariable(brother->child->brother->variable);
+                printf("        mult      $t%d,  $t%d # %s = %s * %s\n", child_symbols->symno, brother_brother_ident->symno, child_symbols->symbolname, brother_child_ident->symbolname, brother_brother_ident->symbolname);
+                printf("        mflo      $t%d", child_symbols->symno); //下位16bitを格納する
+            }
+            else if (brother->child->brother->type == NUM_AST && brother->child->type == IDENT_AST)
+            {
+                Symbols *brother_child_ident = searchVariable(brother->child->variable);
+                int brother_brother_number = brother->child->brother->ivalue;
+                printf("        li       $s7,%d\n", brother_brother_number);
+                printf("        mult     $t%d, $s7 # %s = %s * $7\n", brother_child_ident->symno, child_symbols->symbolname, brother_child_ident->symbolname);
+                printf("        mflo     $t%d", brother_child_ident->symno); //下位16bitを格納する
+            }
+            else
+            {
+                int brother_brother_number = brother->child->brother->ivalue;
+                int brother_child_number = brother->child->ivalue;
+                printf("        mul     $t%d, %d, %d # %s = %d * %d", child_symbols->symno, brother_child_number, brother_brother_number, child_symbols->symbolname, brother_child_number, brother_brother_number);
+            }
+        }
+        else if (brother->type == DIV_AST)
+        {
+            Symbols *brother_child_ident = searchVariable(brother->child->variable);
+            if (brother->child->brother->type == IDENT_AST)
+            {
+                Symbols *brother_brother_ident = searchVariable(brother->child->brother->variable);
+                printf("        div      $t%d,  $t%d # %s = %s * %s\n", child_symbols->symno, brother_brother_ident->symno, child_symbols->symbolname, brother_child_ident->symbolname, brother_brother_ident->symbolname);
+                printf("        mflo      $t%d", child_symbols->symno); //下位16bitを格納する
+            }
+            else
+            {
+                int brother_brother_number = brother->child->brother->ivalue;
+                printf("        div     $t%d, $t%d, %d # %s = %s * %d", child_symbols->symno, brother_child_ident->symno, brother_brother_number, child_symbols->symbolname, brother_child_ident->symbolname, brother_brother_number);
+            }
         }
     }
-    else if (brother->type == SUB_AST)
-    {
-    }
-    else if (brother->type == MUL_AST)
-    {
-        Symbols *brother_child_ident = searchVariable(brother->child->variable);
-        if (brother->child->brother->type == IDENT_AST)
-        {
-            Symbols *brother_brother_ident = searchVariable(brother->child->brother->variable);
-            printf("        mult      $t%d,  $t%d # %s = %s * %s\n", child_symbols->symno, brother_brother_ident->symno, child_symbols->symbolname, brother_child_ident->symbolname, brother_brother_ident->symbolname);
-            printf("        mflo      $t%d", child_symbols->symno);
-        }
-        else
-        {
-            int brother_brother_number = brother->child->brother->ivalue;
-            printf("        mult     $t%d, $t%d, %d # %s = %s * %d", child_symbols->symno, brother_child_ident->symno, brother_brother_number, child_symbols->symbolname, brother_child_ident->symbolname, brother_brother_number);
-        }
-    }
-    else if (brother->type == DIV_AST)
+    else
     {
     }
 }
@@ -309,7 +396,7 @@ void codegen(Node *np)
 {
     Ntype node_type;
     Symbols *hyp;
-    int start_label = 0, condNum = 0;
+    int start_label = 0, if_label = 0;
     if (np != NULL)
     {
         switch (np->type)
@@ -359,9 +446,9 @@ void codegen(Node *np)
         case LT_AST: //done
             if (np->child->brother->type == NUM_AST)
             { //条件文の右が数字の時
-                printf("        li       $s1, %d # $s1 = 11\n", np->child->brother->ivalue);
+                printf("        li       $s1, %d # $s1 = %d\n", np->child->brother->ivalue, np->child->brother->ivalue);
             }
-            printf("        slt      $v0, ");
+            printf("        slt      $v0, "); //set less than
             codegen(np->child);
             printf(", ");
             codegen(np->child->brother);
@@ -369,6 +456,15 @@ void codegen(Node *np)
             break;
 
         case GT_AST:
+            if (np->child->brother->type == NUM_AST)
+            { //条件文の右が数字の時
+                printf("        li       $s1, %d # $s1 = 11\n", np->child->brother->ivalue);
+            }
+            printf("        sgt      $v0, "); //set greater than
+            codegen(np->child);
+            printf(", ");
+            codegen(np->child->brother);
+            printf(" # true=1,false=0\n");
             break;
 
         case WHILE_AST:
@@ -389,9 +485,21 @@ void codegen(Node *np)
             break;
 
         case IF_AST:
+            codegen(np->child); //$v0に条件を満たすかどうかを格納する
+            printf("        beq      $v0, $zero, $IF%dEnd # $v0 == 0 = false\n", if_label);
+            printf("        nop\n");
+            codegen(np->child->brother);
+            //終了ラベル
+            printf("$IF%dEnd:\n", if_label);
+            if_label++;
             break;
 
         case ARRAY_AST:
+            // codegen(np->child);
+            // codegen(np->child->brother);
+            break;
+
+        case EQ_AST:
             break;
 
         case DECLARATION_AST: //done

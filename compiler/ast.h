@@ -45,7 +45,7 @@ typedef struct symbols
 } Symbols;
 
 extern int depth;
-extern Symbols *varTable, *tableStart;
+extern Symbols *symbol_table, *tableStart;
 extern int varNum;
 
 Node *build_num_node(Ntype t, int n);
@@ -57,6 +57,7 @@ Node *build_Node_3(Ntype t, Node *p1, Node *p2, Node *p3);
 Node *build_Node_4(Ntype t, Node *p1, Node *p2, Node *p3, Node *p4);
 
 Node *build_Array_Node(Ntype t, char *s, int n);
+Node *build_Array_Node_ref(Ntype t, char *s, int n);
 
 void printNodes(Node *obj);
 
@@ -64,3 +65,4 @@ void generateArith(Node *obj, Ntype setType, int stackDepth);
 void codegen(Node *obj);
 void printFirstMessage();
 void registerVarTable(char *s);
+void registerVarTable_byArray(char *s, int i);
